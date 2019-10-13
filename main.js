@@ -20,13 +20,20 @@ const createWindow = () => {
 
     let menu = Menu.buildFromTemplate([
         {
-            label: 'Menu',
+            label: 'Archivo',
             submenu: [
-                { label: 'aveda' },
-                { label: 'aveda 2' },
-                { label: 'aveda 3' }
+                { label: 'Nuevo' },
+                { label: 'Abrir' },
+                { label: 'Guardar' },
+                { label: 'Guardar Como' }
             ]
-        }
+        },
+        {
+            label: 'Buscar',
+            submenu: [
+                { label: 'Texto' },
+            ]
+        },
     ])
 
     Menu.setApplicationMenu(menu)
