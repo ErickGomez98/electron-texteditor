@@ -1,4 +1,4 @@
-const { app, BrowserWindow, Menu } = require('electron')
+const { app, BrowserWindow, Menu, ipcMain } = require('electron')
 const shell = require('electron').shell
 
 let win
@@ -60,4 +60,15 @@ app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') {
         app.quit()
     }
+})
+
+
+ipcMain.on('asynchronous-message', (event, args) => {
+    console.log(args);
+    event.reply('asynchronous-reply', 'pong')
+})
+
+ipcMain.on('synchronous-message', (event, arg) => {
+    console.log(arg)
+    event.returnValue = 'pong'
 })
