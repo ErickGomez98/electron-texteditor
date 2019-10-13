@@ -1,5 +1,5 @@
-const { app, BrowserWindow, Menu, ipcMain } = require('electron')
-const shell = require('electron').shell
+const { app, BrowserWindow, Menu, ipcMain, dialog } = require('electron')
+const fs = require('fs')
 
 let win
 const createWindow = () => {
@@ -29,7 +29,11 @@ const createWindow = () => {
                     }
                 },
                 { label: 'Abrir' },
-                { label: 'Guardar' },
+                {
+                    label: 'Guardar', click() {
+                        win.webContents.send('check-save-file-event')
+                    }
+                },
                 { label: 'Guardar Como' },
                 { type: 'separator' },
                 {
@@ -62,13 +66,33 @@ app.on('window-all-closed', () => {
     }
 })
 
-
-ipcMain.on('asynchronous-message', (event, args) => {
-    console.log(args);
-    event.reply('asynchronous-reply', 'pong')
+ipcMain.on('save-as-file-event', async (event, text) => {
+    console.log('mostrar dialog pa guardar el archivo')
+    console.log('el texto: ', text);
+    const savePath = await dialog.showSaveDialog({
+        filters: [
+            { name: 'Documento de texto', extensions: ['txt'] },
+            { name: 'Todos los archivos', extensions: ['*'] }
+        ],
+        title: 'Guardar como',
+        defaultPath: '*.txt'
+    });
+    console.log(savePath)
+    if (!savePath.canceled) {
+        fs.writeFile(savePath.filePath, text, (err) => {
+            if (!err) {
+                win.webContents.send('save-file-event-success', { ...savePath, text })
+            }
+        })
+    }
 })
 
-ipcMain.on('synchronous-message', (event, arg) => {
-    console.log(arg)
-    event.returnValue = 'pong'
-})
+ipcMain.on('save-file-event', (ev, args) => {
+    console.log('nomas guardar el archivo, no mostrar dialog')
+    console.log(args.file)
+    fs.writeFile(args.file, args.text, (err) => {
+        if (!err) {
+            win.webContents.send('save-file-event-success', { filePath: args.file, text: args.text })
+        }
+    })
+});
