@@ -28,7 +28,12 @@ const createWindow = () => {
                         createWindow()
                     }
                 },
-                { label: 'Abrir' },
+                {
+                    label: 'Abrir',
+                    click() {
+                        ipcMain.emit('open-file-event')
+                    }
+                },
                 {
                     label: 'Guardar', click() {
                         win.webContents.send('check-save-file-event')
@@ -91,4 +96,24 @@ ipcMain.on('save-file-event', (ev, args) => {
             win.webContents.send('save-file-event-success', { filePath: args.file, text: args.text })
         }
     })
+});
+
+
+ipcMain.on('open-file-event', async (ev, args) => {
+    const openPath = await dialog.showOpenDialog({
+        filters: [
+            { name: 'Documento de texto', extensions: ['txt'] },
+        ],
+        title: 'Abrir archivo',
+        properties: ['openFile']
+    })
+
+    if (!openPath.canceled) {
+        fs.readFile(openPath.filePaths[0], 'utf8', (err, data) => {
+            if (err) throw err
+            win.webContents.send('open-file-event-success', { filePath: openPath.filePaths[0], text: data })
+        })
+    }
+
+    console.log(openPath)
 });

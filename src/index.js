@@ -55,5 +55,15 @@ document.addEventListener('DOMContentLoaded', () => {
         curretText = arg.text;
     })
 
+    // Abrir archivo
+    ipcRenderer.on('open-file-event-success', (e, arg) => {
+        fileSavedAs = arg.filePath;
+        const splitted = arg.filePath.split('\\')
+        document.title = splitted[splitted.length - 1] + ' : Editor de texto';
+        docTitle = splitted[splitted.length - 1] + ' : Editor de texto';
+        curretText = arg.text;
+        mainEditor.innerHTML = curretText;
+    })
+
 })
 
