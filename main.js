@@ -1,4 +1,5 @@
 const { app, BrowserWindow, Menu } = require('electron')
+const shell = require('electron').shell
 
 let win
 const createWindow = () => {
@@ -10,7 +11,7 @@ const createWindow = () => {
         }
     })
 
-    win.loadFile('index.html')
+    win.loadFile('./src/index.html')
 
     win.webContents.openDevTools()
 
@@ -22,10 +23,20 @@ const createWindow = () => {
         {
             label: 'Archivo',
             submenu: [
-                { label: 'Nuevo' },
+                {
+                    label: 'Nuevo', click() {
+                        createWindow()
+                    }
+                },
                 { label: 'Abrir' },
                 { label: 'Guardar' },
-                { label: 'Guardar Como' }
+                { label: 'Guardar Como' },
+                { type: 'separator' },
+                {
+                    label: 'Salir', click() {
+                        app.quit()
+                    }
+                }
             ]
         },
         {
