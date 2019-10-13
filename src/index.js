@@ -43,6 +43,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     })
 
+    // Guardar como archivo
+    ipcRenderer.on('check-save-as-file-event', (event, arg) => {
+        ipcRenderer.send('save-as-file-event', getEditorText())
+    })
+
     // Guardar archivo success
     ipcRenderer.on('save-file-event-success', (event, arg) => {
         console.log(arg)

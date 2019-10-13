@@ -34,7 +34,11 @@ const createWindow = () => {
                         win.webContents.send('check-save-file-event')
                     }
                 },
-                { label: 'Guardar Como' },
+                {
+                    label: 'Guardar Como', click() {
+                        win.webContents.send('check-save-as-file-event')
+                    }
+                },
                 { type: 'separator' },
                 {
                     label: 'Salir', click() {
