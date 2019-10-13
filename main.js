@@ -56,9 +56,6 @@ const createWindow = () => {
     ])
 
     Menu.setApplicationMenu(menu)
-
-
-
 }
 
 app.on('ready', createWindow)
@@ -71,8 +68,6 @@ app.on('window-all-closed', () => {
 })
 
 ipcMain.on('save-as-file-event', async (event, text) => {
-    console.log('mostrar dialog pa guardar el archivo')
-    console.log('el texto: ', text);
     const savePath = await dialog.showSaveDialog({
         filters: [
             { name: 'Documento de texto', extensions: ['txt'] },
@@ -81,7 +76,6 @@ ipcMain.on('save-as-file-event', async (event, text) => {
         title: 'Guardar como',
         defaultPath: '*.txt'
     });
-    console.log(savePath)
     if (!savePath.canceled) {
         fs.writeFile(savePath.filePath, text, (err) => {
             if (!err) {
@@ -92,8 +86,6 @@ ipcMain.on('save-as-file-event', async (event, text) => {
 })
 
 ipcMain.on('save-file-event', (ev, args) => {
-    console.log('nomas guardar el archivo, no mostrar dialog')
-    console.log(args.file)
     fs.writeFile(args.file, args.text, (err) => {
         if (!err) {
             win.webContents.send('save-file-event-success', { filePath: args.file, text: args.text })

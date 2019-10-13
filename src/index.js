@@ -9,8 +9,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     const handleEditorChange = () => {
-        console.log("current: ", curretText)
-        console.log("modified: ", getEditorText())
         if (getEditorText() !== curretText) {
             document.title = '* ' + docTitle
         } else {
@@ -50,7 +48,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Guardar archivo success
     ipcRenderer.on('save-file-event-success', (event, arg) => {
-        console.log(arg)
         fileSavedAs = arg.filePath;
         const splitted = arg.filePath.split('\\')
         document.title = splitted[splitted.length - 1] + ' : Editor de texto';
