@@ -13,7 +13,7 @@ const createWindow = () => {
 
     win.loadFile('./src/index.html')
 
-    win.webContents.openDevTools()
+    // win.webContents.openDevTools()
 
     win.on('closed', () => {
         win = null
@@ -55,13 +55,49 @@ const createWindow = () => {
         {
             label: 'Buscar',
             submenu: [
-                { label: 'Texto' },
+                {
+                    label: 'Texto', click() {
+                        win.webContents.send('prepare-search-box')
+                    }
+                },
             ]
         },
     ])
 
     Menu.setApplicationMenu(menu)
 }
+
+
+// Buscar win
+let winSearchBox
+const createSearchWindow = (txt) => {
+    winSearchBox = new BrowserWindow({
+        width: 400,
+        height: 100,
+        webPreferences: {
+            nodeIntegration: true
+        },
+        frame: false,
+        alwaysOnTop: true,
+    })
+
+    winSearchBox.loadFile('./src/searchBox.html')
+
+    // winSearchBox.webContents.openDevTools()
+
+    winSearchBox.on('closed', () => {
+        winSearchBox = null
+    })
+
+    winSearchBox.webContents.once('dom-ready', () => {
+        winSearchBox.webContents.send('receive-editor-text', txt)
+    })
+}
+
+
+
+
+// ************** EVENTS ******************
 
 app.on('ready', createWindow)
 
@@ -114,6 +150,12 @@ ipcMain.on('open-file-event', async (ev, args) => {
             win.webContents.send('open-file-event-success', { filePath: openPath.filePaths[0], text: data })
         })
     }
-
-    console.log(openPath)
 });
+
+ipcMain.on('preparing-search-box', (e, text) => {
+    createSearchWindow(text)
+})
+
+ipcMain.on('cancel-search-event', (ev, args) => {
+    winSearchBox.close()
+})

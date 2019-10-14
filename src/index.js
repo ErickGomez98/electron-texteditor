@@ -65,5 +65,9 @@ document.addEventListener('DOMContentLoaded', () => {
         mainEditor.innerHTML = curretText;
     })
 
+    // Preparar searchBox
+    ipcRenderer.on('prepare-search-box', (e, arg) => {
+        ipcRenderer.send('preparing-search-box', getEditorText())
+    })
 })
 
