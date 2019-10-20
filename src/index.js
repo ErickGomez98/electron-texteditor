@@ -69,5 +69,13 @@ document.addEventListener('DOMContentLoaded', () => {
     ipcRenderer.on('prepare-search-box', (e, arg) => {
         ipcRenderer.send('preparing-search-box', getEditorText())
     })
+
+    ipcRenderer.on('cancel-search-box', () => {
+        mainEditor.innerHTML = getEditorText();
+    })
+
+    ipcRenderer.on('search-found', (e, arg) => {
+        mainEditor.innerHTML = getEditorText().substring(0, arg.index) + "<span class='highlight'>" + getEditorText().substring(arg.index, arg.index + arg.searchL) + "</span>" + getEditorText().substring(arg.index + arg.searchL);
+    })
 })
 

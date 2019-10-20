@@ -72,13 +72,12 @@ const createWindow = () => {
 let winSearchBox
 const createSearchWindow = (txt) => {
     winSearchBox = new BrowserWindow({
-        width: 400,
+        width: 440,
         height: 100,
         webPreferences: {
             nodeIntegration: true
         },
         frame: false,
-        alwaysOnTop: true,
     })
 
     winSearchBox.loadFile('./src/searchBox.html')
@@ -156,6 +155,11 @@ ipcMain.on('preparing-search-box', (e, text) => {
     createSearchWindow(text)
 })
 
-ipcMain.on('cancel-search-event', (ev, args) => {
-    winSearchBox.close()
+ipcMain.on('cancel-search-box', (e, text) => {
+    win.webContents.send('cancel-search-box');
+})
+
+
+ipcMain.on('search-found-event', (ev, args) => {
+    win.webContents.send('search-found', args)
 })

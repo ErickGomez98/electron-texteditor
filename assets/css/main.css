@@ -10,3 +10,7 @@ body, html {
     display: inline-block;
     white-space: pre-wrap;
 }
+
+.highlight {
+    background-color: yellow;
+}
