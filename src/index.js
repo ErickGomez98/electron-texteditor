@@ -1,81 +1,126 @@
 const { ipcRenderer } = require('electron')
+const fs = require('fs');
+const filesDir = './docs/';
+const data = [];
+let files = [];
+const BT = require('./Bt');
 
+const { promisify } = require('util');
 document.addEventListener('DOMContentLoaded', () => {
-    const mainEditor = document.getElementById('mainTextEditor')
-    let docTitle = document.title;
-    let curretText = '';
-    // Guarda el nombre del archivo una vez se guarde el archivo
-    let fileSavedAs = false;
 
 
-    const handleEditorChange = () => {
-        if (getEditorText() !== curretText) {
-            document.title = '* ' + docTitle
-        } else {
-            document.title = docTitle
-        }
+    const readAllFiles = async () => {
+        return new Promise(async (resolve, reject) => {
+            await promisify(fs.readdir)(filesDir).then((filenames) => {
+                files = filenames;
+                return Promise.all(filenames.map((filename) => {
+                    return promisify(fs.readFile)(filesDir + filename, { encoding: 'utf8' });
+                }));
+            }).then((strArr) => {
+                strArr.forEach((str, i) => {
+                    const u = str.split('\n');
+                    data[files[i].replace('.txt', '')] = {
+                        edad: u[0],
+                        diagnostico: u[1],
+                    };
+                });
+            }).catch((err) => {
+                console.log(err);
+            });
+            resolve(data)
+        })
     }
 
-    const handlePasteFn = (e) => {
-        e.preventDefault()
-        document.execCommand("insertHTML", false, (e.originalEvent || e).clipboardData.getData('text/plain'));
+
+    const init = async () => {
+        await readAllFiles();
+        const Bthree = new BT();
+        Object.keys(data).map(v => {
+            Bthree.insert(v);
+        });
+        const root = Bthree.getRootNode();
+        console.log(Bthree.search(root, 'erick'))
     }
 
-    const getEditorText = () => {
-        return mainEditor.innerText || mainEditor.textContent
-    }
+    init()
+
+    
+
+    // const mainEditor = document.getElementById('mainTextEditor')
+    // let docTitle = document.title;
+    // let curretText = '';
+    // // Guarda el nombre del archivo una vez se guarde el archivo
+    // let fileSavedAs = false;
 
 
-    // Event listeners
-    mainEditor.addEventListener('input', handleEditorChange)
+    // const handleEditorChange = () => {
+    //     if (getEditorText() !== curretText) {
+    //         document.title = '* ' + docTitle
+    //     } else {
+    //         document.title = docTitle
+    //     }
+    // }
 
-    mainEditor.addEventListener('paste', handlePasteFn)
+    // const handlePasteFn = (e) => {
+    //     e.preventDefault()
+    //     document.execCommand("insertHTML", false, (e.originalEvent || e).clipboardData.getData('text/plain'));
+    // }
+
+    // const getEditorText = () => {
+    //     return mainEditor.innerText || mainEditor.textContent
+    // }
 
 
-    // Guardar archivo
-    ipcRenderer.on('check-save-file-event', (event, arg) => {
-        if (!fileSavedAs) {
-            ipcRenderer.send('save-as-file-event', getEditorText())
-        } else {
-            ipcRenderer.send('save-file-event', { file: fileSavedAs, text: getEditorText() })
-        }
-    })
+    // // Event listeners
+    // mainEditor.addEventListener('input', handleEditorChange)
 
-    // Guardar como archivo
-    ipcRenderer.on('check-save-as-file-event', (event, arg) => {
-        ipcRenderer.send('save-as-file-event', getEditorText())
-    })
+    // mainEditor.addEventListener('paste', handlePasteFn)
 
-    // Guardar archivo success
-    ipcRenderer.on('save-file-event-success', (event, arg) => {
-        fileSavedAs = arg.filePath;
-        const splitted = arg.filePath.split('\\')
-        document.title = splitted[splitted.length - 1] + ' : Editor de texto';
-        docTitle = splitted[splitted.length - 1] + ' : Editor de texto';
-        curretText = arg.text;
-    })
 
-    // Abrir archivo
-    ipcRenderer.on('open-file-event-success', (e, arg) => {
-        fileSavedAs = arg.filePath;
-        const splitted = arg.filePath.split('\\')
-        document.title = splitted[splitted.length - 1] + ' : Editor de texto';
-        docTitle = splitted[splitted.length - 1] + ' : Editor de texto';
-        curretText = arg.text;
-        mainEditor.innerHTML = curretText;
-    })
+    // // Guardar archivo
+    // ipcRenderer.on('check-save-file-event', (event, arg) => {
+    //     if (!fileSavedAs) {
+    //         ipcRenderer.send('save-as-file-event', getEditorText())
+    //     } else {
+    //         ipcRenderer.send('save-file-event', { file: fileSavedAs, text: getEditorText() })
+    //     }
+    // })
 
-    // Preparar searchBox
-    ipcRenderer.on('prepare-search-box', (e, arg) => {
-        ipcRenderer.send('preparing-search-box', getEditorText())
-    })
+    // // Guardar como archivo
+    // ipcRenderer.on('check-save-as-file-event', (event, arg) => {
+    //     ipcRenderer.send('save-as-file-event', getEditorText())
+    // })
 
-    ipcRenderer.on('cancel-search-box', () => {
-        mainEditor.innerHTML = getEditorText();
-    })
+    // // Guardar archivo success
+    // ipcRenderer.on('save-file-event-success', (event, arg) => {
+    //     fileSavedAs = arg.filePath;
+    //     const splitted = arg.filePath.split('\\')
+    //     document.title = splitted[splitted.length - 1] + ' : Editor de texto';
+    //     docTitle = splitted[splitted.length - 1] + ' : Editor de texto';
+    //     curretText = arg.text;
+    // })
 
-    ipcRenderer.on('search-found', (e, arg) => {
-        mainEditor.innerHTML = getEditorText().substring(0, arg.index) + "<span class='highlight'>" + getEditorText().substring(arg.index, arg.index + arg.searchL) + "</span>" + getEditorText().substring(arg.index + arg.searchL);
-    })
+    // // Abrir archivo
+    // ipcRenderer.on('open-file-event-success', (e, arg) => {
+    //     fileSavedAs = arg.filePath;
+    //     const splitted = arg.filePath.split('\\')
+    //     document.title = splitted[splitted.length - 1] + ' : Editor de texto';
+    //     docTitle = splitted[splitted.length - 1] + ' : Editor de texto';
+    //     curretText = arg.text;
+    //     mainEditor.innerHTML = curretText;
+    // })
+
+    // // Preparar searchBox
+    // ipcRenderer.on('prepare-search-box', (e, arg) => {
+    //     ipcRenderer.send('preparing-search-box', getEditorText())
+    // })
+
+    // ipcRenderer.on('cancel-search-box', () => {
+    //     mainEditor.innerHTML = getEditorText();
+    // })
+
+    // ipcRenderer.on('search-found', (e, arg) => {
+    //     mainEditor.innerHTML = getEditorText().substring(0, arg.index) + "<span class='highlight'>" + getEditorText().substring(arg.index, arg.index + arg.searchL) + "</span>" + getEditorText().substring(arg.index + arg.searchL);
+    // })
 })
 

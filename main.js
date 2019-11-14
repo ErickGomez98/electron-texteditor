@@ -1,5 +1,6 @@
 const { app, BrowserWindow, Menu, ipcMain, dialog } = require('electron')
 const fs = require('fs')
+require('electron-reload')(__dirname);
 
 let win
 const createWindow = () => {
@@ -13,56 +14,13 @@ const createWindow = () => {
 
     win.loadFile('./src/index.html')
 
-    // win.webContents.openDevTools()
+    win.webContents.openDevTools()
 
     win.on('closed', () => {
         win = null
     })
 
-    let menu = Menu.buildFromTemplate([
-        {
-            label: 'Archivo',
-            submenu: [
-                {
-                    label: 'Nuevo', click() {
-                        createWindow()
-                    }
-                },
-                {
-                    label: 'Abrir',
-                    click() {
-                        ipcMain.emit('open-file-event')
-                    }
-                },
-                {
-                    label: 'Guardar', click() {
-                        win.webContents.send('check-save-file-event')
-                    }
-                },
-                {
-                    label: 'Guardar Como', click() {
-                        win.webContents.send('check-save-as-file-event')
-                    }
-                },
-                { type: 'separator' },
-                {
-                    label: 'Salir', click() {
-                        app.quit()
-                    }
-                }
-            ]
-        },
-        {
-            label: 'Buscar',
-            submenu: [
-                {
-                    label: 'Texto', click() {
-                        win.webContents.send('prepare-search-box')
-                    }
-                },
-            ]
-        },
-    ])
+    let menu = Menu.buildFromTemplate([])
 
     Menu.setApplicationMenu(menu)
 }
