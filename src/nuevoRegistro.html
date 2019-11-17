@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Nuevo Registro</title>
+  </head>
+  <body>
+    <div>
+      <form id="agregarRegistroForm">
+        <div>
+          <label for="inputNombre">Nombre</label>
+          <input type="text" id="inputNombre" />
+        </div>
+
+        <div>
+          <label for="inputEdad">Edad</label>
+          <input type="number" min="0" id="inputEdad" />
+        </div>
+
+        <div>
+          <label for="inputDiagnostico">Diagnostico</label>
+          <textarea id="inputDiagnostico" rows="3"></textarea>
+        </div>
+
+        <div>
+          <button type="submit" id="buttonSubmit">Guardar</button>
+        </div>
+      </form>
+    </div>
+
+    <script src="form.js"></script>
+  </body>
+</html>

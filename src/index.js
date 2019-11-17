@@ -1,126 +1,139 @@
-const { ipcRenderer } = require('electron')
-const fs = require('fs');
-const filesDir = './docs/';
+const { ipcRenderer } = require("electron");
+const fs = require("fs");
+const filesDir = "./docs/";
 const data = [];
 let files = [];
-const BT = require('./Bt');
-
-const { promisify } = require('util');
-document.addEventListener('DOMContentLoaded', () => {
-
-
-    const readAllFiles = async () => {
-        return new Promise(async (resolve, reject) => {
-            await promisify(fs.readdir)(filesDir).then((filenames) => {
-                files = filenames;
-                return Promise.all(filenames.map((filename) => {
-                    return promisify(fs.readFile)(filesDir + filename, { encoding: 'utf8' });
-                }));
-            }).then((strArr) => {
-                strArr.forEach((str, i) => {
-                    const u = str.split('\n');
-                    data[files[i].replace('.txt', '')] = {
-                        edad: u[0],
-                        diagnostico: u[1],
-                    };
-                });
-            }).catch((err) => {
-                console.log(err);
-            });
-            resolve(data)
+const BT = require("./Bt");
+let Btree;
+let root;
+const { promisify } = require("util");
+document.addEventListener("DOMContentLoaded", () => {
+  const readAllFiles = () => {
+    return new Promise(async (resolve, reject) => {
+      await promisify(fs.readdir)(filesDir)
+        .then(filenames => {
+          files = filenames;
+          return Promise.all(
+            filenames.map(filename => {
+              return promisify(fs.readFile)(filesDir + filename, {
+                encoding: "utf8"
+              });
+            })
+          );
         })
-    }
-
-
-    const init = async () => {
-        await readAllFiles();
-        const Bthree = new BT();
-        Object.keys(data).map(v => {
-            Bthree.insert(v);
+        .then(strArr => {
+          strArr.forEach((str, i) => {
+            const u = str.split("\n");
+            data[files[i].replace(".txt", "")] = {
+              edad: u[0],
+              diagnostico: u[1]
+            };
+          });
+        })
+        .catch(err => {
+          console.log(err);
         });
-        const root = Bthree.getRootNode();
-        console.log(Bthree.search(root, 'erick'))
-    }
+      resolve(data);
+    });
+  };
 
-    init()
+  const init = async () => {
+    await readAllFiles();
+    Btree = new BT();
+    Object.keys(data).map(v => {
+      Btree.insert(v);
+    });
+    root = Btree.getRootNode();
+  };
 
-    
+  init();
 
-    // const mainEditor = document.getElementById('mainTextEditor')
-    // let docTitle = document.title;
-    // let curretText = '';
-    // // Guarda el nombre del archivo una vez se guarde el archivo
-    // let fileSavedAs = false;
+  const writeFile = async data => {
+    return new Promise(async (resolve, reject) => {
+      await promisify(fs.writeFile)(
+        filesDir + `${data.nombre}.txt`,
+        data.edad + "\n" + data.diagnostico
+      )
+        .then(res => {
+          // Una vez creado el archivo, insertar el nodo en el arbol.
+          Btree.insert(data.nombre);
+          resolve();
+        })
+        .catch(err => {
+          console.log(err);
+        });
+    });
+  };
 
+  const deleteFile = nombre => {
+    return new Promise(async (resolve, reject) => {
+      await promisify(fs.unlink)(filesDir + `${nombre}.txt`)
+        .then(res => {
+          // Una vez eliminado el archivo, eliminar el nodo en el arbol.
+          Btree.remove(nombre);
+          resolve();
+        })
+        .catch(err => {
+          console.log(err);
+        });
+    });
+  };
 
-    // const handleEditorChange = () => {
-    //     if (getEditorText() !== curretText) {
-    //         document.title = '* ' + docTitle
-    //     } else {
-    //         document.title = docTitle
-    //     }
-    // }
+  const readFile = nombre => {
+    return new Promise(async (resolve, reject) => {
+      await promisify(fs.readFile)(filesDir + `${nombre}.txt`, {
+        encoding: "utf8"
+      })
+        .then(res => {
+          const u = res.split("\n");
+          resolve({
+            nombre,
+            edad: u[0],
+            diagnostico: u[1]
+          });
+        })
+        .catch(err => {
+          console.log(err);
+        });
+    });
+  };
 
-    // const handlePasteFn = (e) => {
-    //     e.preventDefault()
-    //     document.execCommand("insertHTML", false, (e.originalEvent || e).clipboardData.getData('text/plain'));
-    // }
+  document
+    .getElementById("buttonSearch")
+    .addEventListener("click", async () => {
+      const searchVal = document.getElementById("searchInput").value;
 
-    // const getEditorText = () => {
-    //     return mainEditor.innerText || mainEditor.textContent
-    // }
+      const s = Btree.search(root, searchVal);
 
+      if (s) {
+        const info = await readFile(searchVal);
+        ipcRenderer.send("agregar-nuevo-open-view", info);
+        document.getElementById("searchInput").value = "";
+      } else {
+        alert("No se encontró el registro");
+      }
+    });
 
-    // // Event listeners
-    // mainEditor.addEventListener('input', handleEditorChange)
+  document
+    .getElementById("buttonDelete")
+    .addEventListener("click", async () => {
+      const deleteVal = document.getElementById("deleteInput").value;
+      const s = Btree.search(root, deleteVal);
 
-    // mainEditor.addEventListener('paste', handlePasteFn)
+      if (s) {
+        await deleteFile(deleteVal);
+        document.getElementById("deleteInput").value = "";
+        alert("Registro eliminado");
+      } else {
+        alert("No se encontró el registro para eliminar");
+      }
+    });
 
+  document.getElementById("agregarNuevo").addEventListener("click", () => {
+    ipcRenderer.send("agregar-nuevo-open-view", false);
+  });
 
-    // // Guardar archivo
-    // ipcRenderer.on('check-save-file-event', (event, arg) => {
-    //     if (!fileSavedAs) {
-    //         ipcRenderer.send('save-as-file-event', getEditorText())
-    //     } else {
-    //         ipcRenderer.send('save-file-event', { file: fileSavedAs, text: getEditorText() })
-    //     }
-    // })
-
-    // // Guardar como archivo
-    // ipcRenderer.on('check-save-as-file-event', (event, arg) => {
-    //     ipcRenderer.send('save-as-file-event', getEditorText())
-    // })
-
-    // // Guardar archivo success
-    // ipcRenderer.on('save-file-event-success', (event, arg) => {
-    //     fileSavedAs = arg.filePath;
-    //     const splitted = arg.filePath.split('\\')
-    //     document.title = splitted[splitted.length - 1] + ' : Editor de texto';
-    //     docTitle = splitted[splitted.length - 1] + ' : Editor de texto';
-    //     curretText = arg.text;
-    // })
-
-    // // Abrir archivo
-    // ipcRenderer.on('open-file-event-success', (e, arg) => {
-    //     fileSavedAs = arg.filePath;
-    //     const splitted = arg.filePath.split('\\')
-    //     document.title = splitted[splitted.length - 1] + ' : Editor de texto';
-    //     docTitle = splitted[splitted.length - 1] + ' : Editor de texto';
-    //     curretText = arg.text;
-    //     mainEditor.innerHTML = curretText;
-    // })
-
-    // // Preparar searchBox
-    // ipcRenderer.on('prepare-search-box', (e, arg) => {
-    //     ipcRenderer.send('preparing-search-box', getEditorText())
-    // })
-
-    // ipcRenderer.on('cancel-search-box', () => {
-    //     mainEditor.innerHTML = getEditorText();
-    // })
-
-    // ipcRenderer.on('search-found', (e, arg) => {
-    //     mainEditor.innerHTML = getEditorText().substring(0, arg.index) + "<span class='highlight'>" + getEditorText().substring(arg.index, arg.index + arg.searchL) + "</span>" + getEditorText().substring(arg.index + arg.searchL);
-    // })
-})
-
+  ipcRenderer.on("agregar-registro-tree", async (ev, data) => {
+    await writeFile(data);
+  });
+});

@@ -1,20 +1,40 @@
 <!DOCTYPE html>
 <html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>App</title>
+    <!-- https://electronjs.org/docs/tutorial/security#csp-meta-tag -->
+    <meta http-equiv="Content-Security-Policy" content="script-src 'self';" />
+    <link rel="stylesheet" href="../assets/css/main.css" />
+    <link
+      href="https://fonts.googleapis.com/css?family=Roboto&display=swap"
+      rel="stylesheet"
+    />
+  </head>
 
-<head>
-  <meta charset="UTF-8">
-  <title>App</title>
-  <!-- https://electronjs.org/docs/tutorial/security#csp-meta-tag -->
-  <meta http-equiv="Content-Security-Policy" content="script-src 'self';" />
-  <link rel="stylesheet" href="../assets/css/main.css">
-  <link href="https://fonts.googleapis.com/css?family=Roboto&display=swap" rel="stylesheet">
-</head>
+  <body>
+    <div id="mainTextEditor">
+      <div class="title">
+        <h1>DOCUMENTOS</h1>
+      </div>
 
-<body>
-  <div id="mainTextEditor">Here</div>
+      <div class="content">
+        <div class="create-container">
+          <button id="agregarNuevo">Agregar nuevo</button>
+        </div>
+        <div class="search-container">
+          <label for="searchInput">Nombre</label>
+          <input type="text" id="searchInput" />
+          <button id="buttonSearch">Buscar</button>
+        </div>
+        <div class="delete-container">
+          <label for="deleteInput">Nombre</label>
+          <input type="text" id="deleteInput" />
+          <button id="buttonDelete">Eliminar</button>
+        </div>
+      </div>
+    </div>
 
-
-  <script src="index.js"></script>
-</body>
-
+    <script src="index.js"></script>
+  </body>
 </html>
