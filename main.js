@@ -1,10 +1,10 @@
 const { app, BrowserWindow, Menu, ipcMain } = require("electron");
-
+require("electron-reload")(__dirname);
 let win;
 const createWindow = () => {
   win = new BrowserWindow({
-    width: 800,
-    height: 600,
+    width: 650,
+    height: 500,
     webPreferences: {
       nodeIntegration: true
     }
@@ -12,7 +12,7 @@ const createWindow = () => {
 
   win.loadFile("./src/index.html");
 
-  win.webContents.openDevTools();
+  //   win.webContents.openDevTools();
 
   win.on("closed", () => {
     win = null;
@@ -27,8 +27,8 @@ const createWindow = () => {
 let windowNew;
 const createNewWindow = editing => {
   windowNew = new BrowserWindow({
-    width: 500,
-    height: 500,
+    width: 400,
+    height: 300,
     webPreferences: {
       nodeIntegration: true
     }
@@ -36,7 +36,7 @@ const createNewWindow = editing => {
 
   windowNew.loadFile("./src/nuevoRegistro.html");
 
-  windowNew.webContents.openDevTools();
+  //   windowNew.webContents.openDevTools();
 
   windowNew.on("closed", () => {
     windowNew = null;

@@ -1,0 +1,19 @@
+label {
+  width: 100px;
+  display: inline-block;
+  font-weight: 700;
+}
+
+input {
+  padding: 5px;
+  margin-bottom: 10px;
+}
+
+button {
+  margin-top: 20px;
+  padding: 10px;
+  background-color: #0d47a1;
+  border: none;
+  color: white;
+  cursor: pointer;
+}

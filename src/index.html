@@ -13,7 +13,7 @@
   </head>
 
   <body>
-    <div id="mainTextEditor">
+    <div id="mainContainer">
       <div class="title">
         <h1>DOCUMENTOS</h1>
       </div>
@@ -23,13 +23,21 @@
           <button id="agregarNuevo">Agregar nuevo</button>
         </div>
         <div class="search-container">
-          <label for="searchInput">Nombre</label>
-          <input type="text" id="searchInput" />
+          <label for="searchInput">Nombre buscar</label>
+          <input
+            type="text"
+            id="searchInput"
+            placeholder="Ingresa el nombre a buscar"
+          />
           <button id="buttonSearch">Buscar</button>
         </div>
         <div class="delete-container">
-          <label for="deleteInput">Nombre</label>
-          <input type="text" id="deleteInput" />
+          <label for="deleteInput">Nombre eliminar</label>
+          <input
+            type="text"
+            id="deleteInput"
+            placeholder="Ingresa el nombre a eliminar"
+          />
           <button id="buttonDelete">Eliminar</button>
         </div>
       </div>
