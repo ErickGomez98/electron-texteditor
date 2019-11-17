@@ -1,5 +1,4 @@
 const { app, BrowserWindow, Menu, ipcMain } = require("electron");
-require("electron-reload")(__dirname);
 let win;
 const createWindow = () => {
   win = new BrowserWindow({
